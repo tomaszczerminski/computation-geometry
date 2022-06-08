@@ -7,9 +7,9 @@ import queryState from 'query-state';
 
 import bus from './bus';
 
-var whitelistedAlgorithms = new Set(['brute', 'bush', 'sweep']);
+let whitelistedAlgorithms = new Set(['brute', 'bush', 'sweep']);
 
-var qs = queryState({
+let qs = queryState({
     isAsync: true,
     p0: 150,
     p1: 4,

@@ -1,4 +1,4 @@
-import eventQueue from '../event-queue';
+import queue from '../event-queue';
 import createSweepStatus from '../sweep-status';
 import SweepEvent from '../sweep-event';
 
@@ -54,7 +54,7 @@ export default function isect(segments, options) {
 
   var onError = (options && options.onError) || defaultErrorReporter;
 
-  var eventQueue = eventQueue(byY);
+  var eventQueue = queue(byY);
   var sweepStatus = createSweepStatus(onError, EPS);
   var lower, interior, lastPoint;
 

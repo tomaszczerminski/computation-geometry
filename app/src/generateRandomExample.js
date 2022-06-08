@@ -1,7 +1,7 @@
-var createRandom = require('ngraph.random');
-var prng = createRandom(42);
+const createRandom = require('ngraph.random');
+const prng = createRandom(42);
 
-var params = [
+const params = [
   {
     name: 'random',
     algorithm: ['brute', 'bush'],
@@ -48,7 +48,7 @@ var params = [
     name: 'sparse',
     algorithm: ['bush', 'bush', 'sweep'],
     args: [
-      {min: 50, max: 300},  // Count  
+      {min: 50, max: 300},  // Count
     ]
   },
   {
@@ -58,16 +58,16 @@ var params = [
       return (qs.p1 > 7) ? 'brute' : 'bush'
     },
     args: [
-      {min: 10, max: 30},  // Count  
-      {min: 1, max: 20},  // Count  
+      {min: 10, max: 30},  // Count
+      {min: 1, max: 20},  // Count
     ]
   },
   {
     name: 'splash',
     algorithm: ['sweep', 'bush'],
     args: [
-      {min: 10, max: 50},  // Number of lines  
-      {min: 40, max: 70},  // squared variance  
+      {min: 10, max: 50},  // Number of lines
+      {min: 40, max: 70},  // squared variance
     ]
   },
   {
@@ -78,33 +78,23 @@ var params = [
       {min: 6, max: 11},  // Number of subdivisions
     ]
   }
-]
+];
 
 export default function generateRandomExample() {
-  var generatorIdx = Math.round(Math.random() * (params.length - 1));
-  var generator = params[generatorIdx];
-
-  var qs = {
+  const generatorIdx = Math.round(Math.random() * (params.length - 1));
+  const generator = params[generatorIdx];
+  const qs = {
     generator: generator.name
-  }
+  };
   generator.args.forEach((range, idx) => {
-    var keyName = `p${idx}`;
+    const keyName = `p${idx}`;
     if (typeof range === 'function') {
       qs[keyName] = range(qs);
     } else  {
       qs[keyName] = Math.round(Math.random() * (range.max - range.min) + range.min);
     }
   });
-  var algorithm = 'sweep';
-  if (Array.isArray(generator.algorithm)) {
-    var randomIndex = Math.round(Math.random() * (generator.algorithm.length - 1));
-    algorithm = generator.algorithm[randomIndex];
-  } else if (typeof generator.algorithm === 'function') {
-    algorithm = generator.algorithm(qs);
-  } else if (typeof generator.algorithm === 'string') {
-    algorithm = generator.algorithm;
-  }
-  qs.algorithm = algorithm;
-
+  qs.algorithm = 'sweep';
+  qs.stepsPerFrame = 1;
   return qs;
 }

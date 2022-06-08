@@ -43,7 +43,7 @@ export default {
     generateNew() {
       this.showLoading = true;
       this.showMetrics = false;
-      var newState = generateRandomExample();
+      let newState = generateRandomExample();
       bus.fire('change-qs', newState);
     }
   },
