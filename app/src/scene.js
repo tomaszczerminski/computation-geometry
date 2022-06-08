@@ -56,38 +56,9 @@ function createScene(options, canvas) {
   function startTheDemo() {
     bus.fire('start-app')
     appStatus.error = null;
-    if (isAsync) {
-      runAsync();
-    } else {
-      runSync();
-    }
+    runAsync();
     appStatus.showLoading = false;
     appStatus.showMetrics = true;
-  }
-
-  function runSync() {
-    // eslint-disable-next-line
-    var startTime = window.performance.now();
-    iSector = isect[algorithmName](lines, { onError });
-    try {
-      var intersections = iSector.run();
-    } catch (e) {
-      // Error is reported in the onError.
-      // eslint-disable-next-line
-      console.error(e);
-      // fall back to brute force.
-      intersections = isect.brute(lines).run();
-    }
-    var elapsed = window.performance.now() - startTime;
-    // eslint-disable-next-line
-    console.log('finished in ' + elapsed + 'ms')
-    if (intersections) {
-      // eslint-disable-next-line
-      console.log('found ' + intersections.length + ' intersections');
-      updateSearchMetrics(elapsed);
-      drawIntersections(intersections)
-      bus.fire('prepare-report', intersections)
-    }
   }
 
   function onError(err) {
@@ -111,7 +82,6 @@ function createScene(options, canvas) {
       var hasMore = iSector.step();
       if (iSector.sweepStatus) {
         drawSweepStatus(iSector.sweepStatus);
-        iSector.sweepStatus.printStatus();
       }
       drawIntersections(iSector.results)
       return hasMore;
@@ -144,6 +114,7 @@ function createScene(options, canvas) {
     totalElapsed += end - start;
     updateSearchMetrics(totalElapsed);
     drawSweepStatus(iSector.sweepStatus);
+    iSector.sweepStatus.printStatus();
     drawIntersections(iSector.results)
 
     if (hasMore) {

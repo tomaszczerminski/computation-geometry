@@ -93,7 +93,6 @@ Report will be ready to download as soon as intersections are calculated.
 
 The program can be controlled via HTTP query. There are a few that may come handy.
 
-`isAsync` - if set to `false`, intersection calculation process will be performed synchronously, asynchronously if `true`,  
 `algoritm` - one can choose between `sweep`, `brute` and `bush` values (detailed description for each of them above),  
 `generator` - is used to determine how the segments are generated. Supported values: `complete`, `cube`, `drunkgrid`, `sparse`, `triangle`, `splash`
 
