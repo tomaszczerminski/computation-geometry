@@ -43,9 +43,13 @@ export function prepare() {
     const pixelRatio = scene.getPixelRatio();
     const left = bounds.left / pixelRatio;
     const top = bounds.top / pixelRatio;
-    scene.setViewBox({
-        left, top, right: left + bounds.width / pixelRatio, bottom: top + bounds.height / pixelRatio
-    });
+    try {
+        scene.setViewBox({
+            left, top, right: left + bounds.width / pixelRatio, bottom: top + bounds.height / pixelRatio
+        });
+    } catch (e) {
+        console.log(e)
+    }
     return scene;
 }
 

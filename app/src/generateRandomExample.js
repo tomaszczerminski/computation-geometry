@@ -66,13 +66,6 @@ const params = [
         ]
     },
     {
-      name: 'manual',
-      algorithm: function (qs) {
-          return qs.segments
-      },
-        args: []
-    },
-    {
         name: 'splash',
         algorithm: ['sweep', 'bush'],
         args: [
@@ -107,8 +100,9 @@ export default function generateRandomExample() {
     });
     const p0 = getNumber(qs.p0, 50);
     const p1 = getNumber(qs.p1, 4);
-    appStatus.segments.splice(0, appStatus.segments.length)
-    appStatus.segments.push(...gen[generator.name](p0, p1));
+    console.log(generator.name)
+    const segments = gen[generator.name](p0, p1);
+    appStatus.segments = segments;
     qs.algorithm = 'sweep';
     qs.stepsPerFrame = 1;
     return qs;
