@@ -1,8 +1,7 @@
 import Vue from 'vue'
 import App from './App.vue'
-import createScene from './scene';
+import {createScene, dispose, prepare, start} from './scene';
 
-import * as gen from './generators';
 import queryState from 'query-state';
 
 import bus from './bus';
@@ -17,23 +16,36 @@ let qs = queryState({
     useSearch: true
 });
 
+let handle = null
+
 qs.onChange(updateScene);
-bus.on('app-loaded', renderFirstTime);
+bus.on('start', () => {
+    handle = setTimeout(start, 80);
+})
 bus.on('change-qs', (newState) => {
     let link = document.getElementById("download-report");
     link.style.visibility = 'hidden';
     qs.set(newState);
     updateScene(newState);
 });
+bus.on('clear-scene', () => {
+    let link = document.getElementById("download-report");
+    link.style.visibility = 'hidden';
+    let results = document.getElementById('results');
+    results.style.visibility = 'hidden';
+    onClear();
+})
 
 bus.on('start-app', () => {
     let link = document.getElementById("download-report");
     link.style.visibility = 'hidden';
+    let results = document.getElementById('results');
+    results.style.visibility = 'visible';
 });
 
 bus.on('prepare-report', intersections => {
     let csv = "";
-    intersections.forEach(function(intersection) {
+    intersections.forEach(function (intersection) {
         let point = intersection.point;
         let row = `(${point.x};${point.y})`;
         csv += row + "\r\n";
@@ -53,8 +65,8 @@ bus.on('chunks-sent', chunks => {
     bus.fire('prepare-report', chunks);
 });
 
-var sceneOptions = getSceneOptions(qs.get());
-var currentScene;
+let sceneOptions = getSceneOptions(qs.get());
+let currentScene;
 
 Vue.config.productionTip = false
 
@@ -62,33 +74,45 @@ new Vue({
     render: h => h(App)
 }).$mount('#app')
 
-
-function renderFirstTime() {
-    currentScene = createScene(sceneOptions, document.getElementById('scene'));
-}
-
-function updateScene(appState) {
-    appState.showLoading = true;
-    appState.showMetrics = false;
+export function updateScene(appState) {
     sceneOptions = getSceneOptions(appState);
     if (currentScene) {
         currentScene.dispose();
     }
-    currentScene = createScene(sceneOptions, document.getElementById('scene'));
+    currentScene = createScene(sceneOptions);
+}
+
+function onClear() {
+    dispose();
+    if (handle) {
+        clearTimeout(handle);
+        handle = 0;
+    }
+    prepare();
+    bus.fire('change-qs', {
+        dirty: false,
+        mode: null,
+        x1: null,
+        x2: null,
+        y1: null,
+        y2: null,
+        segments: [],
+        error: null,
+        showMetrics: false,
+        showLoading: false,
+        elapsed: 0,
+        found: 0,
+        linesCount: 0,
+        algorithm: 'Please select algorithm',
+        generator: 'Please select generator'
+    });
 }
 
 function getSceneOptions(state) {
-    var generator = state.generator;
-    if (!(generator in gen)) {
-        generator = 'drunkgrid'
-    }
-    var p0 = getNumber(state.p0, 50);
-    var p1 = getNumber(state.p1, 4);
-
-    var lines = gen[generator](p0, p1);
-    window.lines = lines;
-    var isAsync = state.isAsync;
-    var stepsPerFrame = getNumber(state.stepsPerFrame, 20);
+    const lines = state.segments;
+    window.lines = state.segments;
+    const isAsync = state.isAsync;
+    const stepsPerFrame = getNumber(state.stepsPerFrame, 20);
     return {
         lines,
         isAsync,
@@ -98,6 +122,6 @@ function getSceneOptions(state) {
 }
 
 function getNumber(x, defaultValue) {
-    var num = Number.parseFloat(x);
+    const num = Number.parseFloat(x);
     return Number.isFinite(num) ? num : defaultValue;
 }

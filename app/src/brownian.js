@@ -1,87 +1,82 @@
-var createRandom = require('ngraph.random');
-var seed = +new Date();
-var prng = createRandom(seed);
+const createRandom = require('ngraph.random');
+const seed = +new Date();
+const prng = createRandom(seed);
 
 export function splash(linesCount, minMax) {
-  var lines = [];
-  for (var j = 0; j < linesCount; ++j) {
-    var r = prng.gaussian() * minMax;
-    var alpha = prng.gaussian() * Math.PI * 2;
-    var points = getArr({
-      x: prng.gaussian(),
-      y: prng.gaussian() 
-    }, {
-      x: r * Math.cos(alpha), 
-      y: r * Math.sin(alpha)
-    }, 7);
-
-    for (var i = 1; i < points.length; ++i) {
-      lines.push({
-        from: points[i - 1],
-        to: points[i]
-      })
+    const lines = [];
+    for (let j = 0; j < linesCount; ++j) {
+        const r = prng.gaussian() * minMax;
+        const alpha = prng.gaussian() * Math.PI * 2;
+        const points = getArr({
+            x: prng.gaussian(),
+            y: prng.gaussian()
+        }, {
+            x: r * Math.cos(alpha),
+            y: r * Math.sin(alpha)
+        }, 7);
+        for (let i = 1; i < points.length; ++i) {
+            lines.push({
+                from: points[i - 1],
+                to: points[i]
+            })
+        }
     }
-  }
-  return lines;
+    return lines;
 }
 
 export function island(pointsCount, bands) {
-  var r = 100 * Math.sqrt(bands);
-  var da = 2 * Math.PI/pointsCount;
-  var angle = prng.gaussian();
-  var lines = [];
-  var end = {
-    x: r * Math.cos(angle),
-    y: r * Math.sin(angle)
-  };
-  var from = end;
-
-  for (var j = 0; j < pointsCount; ++j) {
-    r = prng.nextDouble() * 100;
-    angle += da;
-    var to = j < pointsCount - 1 ? {
-      x: r * Math.cos(angle),
-      y: r * Math.sin(angle)
-    } : end; // close the loop.
-    var points = getArr(from, to, bands);
-    for (var i = 1; i < points.length; ++i) {
-      lines.push({
-        from: points[i - 1],
-        to:   points[i]
-      })
+    let r = 100 * Math.sqrt(bands);
+    const da = 2 * Math.PI / pointsCount;
+    let angle = prng.gaussian();
+    const lines = [];
+    const end = {
+        x: r * Math.cos(angle),
+        y: r * Math.sin(angle)
+    };
+    let from = end;
+    for (let j = 0; j < pointsCount; ++j) {
+        r = prng.nextDouble() * 100;
+        angle += da;
+        const to = j < pointsCount - 1 ? {
+            x: r * Math.cos(angle),
+            y: r * Math.sin(angle)
+        } : end; // close the loop.
+        const points = getArr(from, to, bands);
+        for (let i = 1; i < points.length; ++i) {
+            lines.push({
+                from: points[i - 1],
+                to: points[i]
+            })
+        }
+        from = to;
     }
-    from = to;
-  }
-
-  return lines;
+    return lines;
 }
 
 function getArr(tMin, tMax, bands = 8) {
-  var arr = [tMin, tMax];
-  var dx = tMax.x - tMin.x;
-  var dy = tMax.y - tMin.y;
-  var l = Math.sqrt(dx * dx + dy * dy);
-  var variance = l;
-
-  for (var j = 0; j < bands; ++j) {
-    var newArr = [];
-    // fill in intermediate entries
-    for (var i = 1; i < arr.length; i += 1) {
-      var prev = arr[i - 1];
-
-      var mid = interpolate(prev, arr[i], Math.sqrt(variance));
-      newArr.push(prev, mid);
+    let arr = [tMin, tMax];
+    const dx = tMax.x - tMin.x;
+    const dy = tMax.y - tMin.y;
+    const l = Math.sqrt(dx * dx + dy * dy);
+    let variance = l;
+    for (let j = 0; j < bands; ++j) {
+        const newArr = [];
+        // fill in intermediate entries
+        for (let i = 1; i < arr.length; i += 1) {
+            const prev = arr[i - 1];
+            const mid = interpolate(prev, arr[i], Math.sqrt(variance));
+            newArr.push(prev, mid);
+        }
+        newArr.push(arr[arr.length - 1]);
+        variance /= 2;
+        arr = newArr;
     }
-    newArr.push(arr[arr.length - 1]);
-    variance /= 2;
-    arr = newArr;
-  }
-  return arr;
+    return arr;
 }
 
 function interpolate(p0, p1, variance) {
-  return {
-    x: (p0.x + p1.x) * 0.5 + prng.gaussian() * variance,
-    y: (p0.y + p1.y) * 0.5 + prng.gaussian() * variance,
-  }
+    return {
+        x: (p0.x + p1.x) * 0.5 + prng.gaussian() * variance,
+        y: (p0.y + p1.y) * 0.5 + prng.gaussian() * variance,
+    }
 }

@@ -7,10 +7,39 @@
       <li>Grażyna Górka</li>
     </ul>
     <div v-if='!showLoading'>
-      <a href='#' @click.prevent='generateNew()' class='action'>Generate Random</a>
+      <div id="mode-selector">
+        <div>Input mode:</div>
+        <span>
+        <input type="radio" id="random" value="random" v-model="mode"/>
+        <label for="random">Random</label>
+        </span>
+        <span>
+          <input type="radio" id="manual" value="manual" v-model="mode"/>
+        <label for="manual">Manual</label>
+        </span>
+      </div>
+      <div style="clear: both"></div>
+      <a href='#' @click.prevent='generateNew()' v-if="mode == 'random'" class='action'>Generate</a>
+      <form v-if="mode == 'manual'">
+        <div>
+          <label for="x1">x1:</label>
+          <input id="x1" type="number" v-model.number="x1"/>
+          <label for="y1">y1:</label>
+          <input id="y1" type="number" v-model.number="y1"/>
+        </div>
+        <div>
+          <label for="x2">x2:</label>
+          <input id="x2" type="number" v-model.number="x2"/>
+          <label for="y2">y2:</label>
+          <input id="y2" type="number" v-model.number="y2"/>
+        </div>
+        <a href='#' @click.prevent='addSegment()' v-if="x1 != null && x2 != null && y1 != null && y2 != null" class='action'>Add segment</a>
+      </form>
+      <a href='#' @click.prevent='start()' v-if="segments.length >= 2" class='action'>Start</a>
+      <a href='#' @click.prevent='clear()' v-if="segments.length > 0" class='action'>Clear</a>
     </div>
-    <a id="download-report" href='#' class='action' download>Download CSV</a>
-    <div v-if='showMetrics' class='results'>
+    <a id="download-report" href='#' style="visibility: hidden" class='action' download>Download CSV</a>
+    <div style="visibility: hidden" id='results'>
       <div id="metrics"><strong>{{ linesCount }}</strong> segments. Found <strong>{{ found }}</strong> intersections in
         <strong>{{ elapsed }}</strong></div>
     </div>
@@ -41,9 +70,41 @@ export default {
   },
   methods: {
     generateNew() {
-      this.showLoading = true;
-      this.showMetrics = false;
       let newState = generateRandomExample();
+      const diff = {
+        ...appState,
+        ...newState
+      }
+      bus.fire('change-qs', diff);
+    },
+    start() {
+      bus.fire('start')
+    },
+    clear() {
+      this.segments.splice(0, this.segments.length)
+      bus.fire('clear-scene', {});
+    },
+    addSegment() {
+      const segment = {
+        from: {
+          x: this.x1,
+          y: this.y1
+        },
+        to: {
+          x: this.x2,
+          y: this.y2
+        }
+      };
+      this.x1 = null;
+      this.x2 = null;
+      this.y1 = null;
+      this.y2 = null;
+      this.segments.push(segment);
+      const newState = {
+        ...appState,
+        generator: 'manual',
+        algorithm: 'sweep'
+      }
       bus.fire('change-qs', newState);
     }
   },
@@ -70,10 +131,9 @@ a.action {
 }
 
 h3 {
-  margin: 7px 0;
   font-weight: normal;
   text-align: center;
-  margin-top: 25px;
+  margin: 25px 0 7px;
 }
 
 h3 strong {
@@ -85,7 +145,7 @@ a {
   margin-top: 10px;
 }
 
-.results {
+#results {
   margin-top: 7px;
 }
 
@@ -95,22 +155,14 @@ a {
   padding: 0 8px;
 }
 
-.info {
-  position: fixed;
-  right: 8px;
-  top: 8px;
-  color: white;
-  border-bottom: 1px dashed;
-}
-
 @media (max-width: 600px) {
   #app {
     width: 100%;
-    margin: 0px;
-    padding: 0px;
+    margin: 0;
+    padding: 0;
   }
 
-  .results {
+  #results {
     font-size: 12px;
     margin: 7px;
   }
@@ -122,13 +174,6 @@ a {
   .error {
     padding: 0 7px;
     margin: 0;
-  }
-
-  .info {
-    bottom: 42px;
-    left: 8px;
-    right: inherit;
-    top: inherit;
   }
 }
 
@@ -219,6 +264,42 @@ a {
 
 #metrics {
   margin-top: 25px;
+}
+
+#mode-selector {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+#mode-selector div {
+  margin-bottom: 5px;
+}
+
+#mode-selector span {
+  min-width: 50%;
+  float: left;
+}
+
+form {
+  margin-top: 15px;
+}
+
+form a {
+  margin-top: 15px;
+}
+
+form label:first-of-type {
+  margin-left: 25px;
+  margin-right: 5px;
+}
+
+form label:last-of-type {
+  margin-left: 25px;
+  margin-right: 5px;
+}
+
+form input {
+  width: 30%;
 }
 
 </style>
