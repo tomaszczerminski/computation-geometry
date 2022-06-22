@@ -1,17 +1,16 @@
-/** TODO: How do I remove duplicates from here and perf? */
-var createRandom = require('ngraph.random');
-var seed = +new Date();
-var prng = createRandom(seed);
+// noinspection JSUnusedGlobalSymbols
+
+const createRandom = require('ngraph.random');
+const seed = +new Date();
+let prng = createRandom(seed);
 
 export * from './brownian';
 
 export function random(count = 4, range = 100, seed) {
     seed = 1536687392180
-    if (seed !== undefined) {
-        prng = createRandom(seed);
-    }
-    var lines = [];
-    for (var i = 0; i < count; ++i) {
+    prng = createRandom(seed);
+    const lines = [];
+    for (let i = 0; i < count; ++i) {
         lines.push({
             from: {x: (prng.nextDouble() - 0.5) * range, y: (prng.nextDouble() - 0.5) * range},
             to: {x: (prng.nextDouble() - 0.5) * range, y: (prng.nextDouble() - 0.5) * range}
@@ -21,9 +20,9 @@ export function random(count = 4, range = 100, seed) {
 }
 
 export function parallelSlanted(count) {
-    var lines = [];
-    for (var i = 0; i < count; ++i) {
-        var x = -i, y = i;
+    const lines = [];
+    for (let i = 0; i < count; ++i) {
+        const x = -i, y = i;
         lines.push({
             from: {x, y},
             to: {x: i, y: i + i}
@@ -33,13 +32,11 @@ export function parallelSlanted(count) {
 }
 
 export function sparse(size = 50) {
-    var lines = [];
-    var rows = size, columns = size;
-    for (var j = 0; j < rows; ++j) {
-        for (var i = 0; i < columns; ++i) {
-            var x = i * 10, y = j * 10;
-            var a = prng.gaussian();
-
+    const lines = [];
+    for (let j = 0; j < size; ++j) {
+        for (let i = 0; i < size; ++i) {
+            const x = i * 10, y = j * 10;
+            const a = prng.gaussian();
             lines.push({
                 from: {x, y},
                 to: {x: x + 10 * Math.cos(a), y: y + 10 * Math.sin(a)}
@@ -50,28 +47,25 @@ export function sparse(size = 50) {
 }
 
 export function triangle(count = 4, variance = 10) {
-    var lines = [];
-    var step = 5;
-    var idxVar = prng.nextDouble() < 0.5 ? 1 : 0;
-    for (var i = 0; i < count; ++i) {
-        for (var j = 0; j < count; ++j) {
-            var x = step * i;
-            var y = step * j;
-
-            var idxToUse = (i % 2 === idxVar) ? i : j;
-            var angle = Math.PI * (idxToUse / count - prng.gaussian());
+    const lines = [];
+    const step = 5;
+    const idxVar = prng.nextDouble() < 0.5 ? 1 : 0;
+    for (let i = 0; i < count; ++i) {
+        for (let j = 0; j < count; ++j) {
+            const x = step * i;
+            const y = step * j;
+            const idxToUse = (i % 2 === idxVar) ? i : j;
+            const angle = Math.PI * (idxToUse / count - prng.gaussian());
             drawTriangle(x, y, variance, angle);
         }
     }
-
     return lines;
 
     function drawTriangle(x, y, width, alpha) {
-        var cp = {x: x + width / 2, y: y - width / 2};
-        var left = rotate({x: x, y: y}, cp, alpha);
-        var right = rotate({x: x + width, y: y}, cp, alpha);
-        var middle = rotate({x: x + width / 2, y: y - width}, cp, alpha);
-
+        const cp = {x: x + width / 2, y: y - width / 2};
+        const left = rotate({x: x, y: y}, cp, alpha);
+        const right = rotate({x: x + width, y: y}, cp, alpha);
+        const middle = rotate({x: x + width / 2, y: y - width}, cp, alpha);
         lines.push(
             {from: {x: left.x, y: left.y}, to: {x: right.x, y: right.y}, name: `B${x},${y}`},
             {from: {x: right.x, y: right.y}, to: {x: middle.x, y: middle.y}, name: `U${x},${y}`},
@@ -83,9 +77,8 @@ export function triangle(count = 4, variance = 10) {
 function rotate(point, center, alpha) {
     point.x -= center.x;
     point.y -= center.y;
-
-    var x = Math.cos(alpha) * point.x - point.y * Math.sin(alpha) + center.x;
-    var y = Math.sin(alpha) * point.x + point.y * Math.cos(alpha) + center.y;
+    const x = Math.cos(alpha) * point.x - point.y * Math.sin(alpha) + center.x;
+    const y = Math.sin(alpha) * point.x + point.y * Math.cos(alpha) + center.y;
     return {x, y};
 }
 

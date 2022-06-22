@@ -55,9 +55,9 @@
 </template>
 
 <script>
-import appState from './appStatus.js';
-import generateRandomExample from './generateRandomExample';
-import bus from './bus';
+import appState from './app-state.js';
+import generateRandomExample from './generate';
+import eventBus from './event-bus';
 
 export default {
   name: 'app',
@@ -66,7 +66,7 @@ export default {
     return appState;
   },
   mounted() {
-    bus.fire('app-loaded');
+    eventBus.fire('app-loaded');
   },
   methods: {
     generateNew() {
@@ -75,14 +75,14 @@ export default {
         ...appState,
         ...newState
       }
-      bus.fire('change-qs', diff);
+      eventBus.fire('change-qs', diff);
     },
     start() {
-      bus.fire('start')
+      eventBus.fire('start')
     },
     clear() {
       this.segments.splice(0, this.segments.length)
-      bus.fire('clear-scene', {});
+      eventBus.fire('clear-scene', {});
     },
     addSegment() {
       const segment = {
@@ -105,7 +105,7 @@ export default {
         generator: 'manual',
         algorithm: 'sweep'
       }
-      bus.fire('change-qs', newState);
+      eventBus.fire('change-qs', newState);
     }
   },
 }

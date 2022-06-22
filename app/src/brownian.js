@@ -1,3 +1,5 @@
+// noinspection JSUnusedGlobalSymbols
+
 const createRandom = require('ngraph.random');
 const seed = +new Date();
 const prng = createRandom(seed);
@@ -57,11 +59,9 @@ function getArr(tMin, tMax, bands = 8) {
     let arr = [tMin, tMax];
     const dx = tMax.x - tMin.x;
     const dy = tMax.y - tMin.y;
-    const l = Math.sqrt(dx * dx + dy * dy);
-    let variance = l;
+    let variance = Math.sqrt(dx * dx + dy * dy);
     for (let j = 0; j < bands; ++j) {
         const newArr = [];
-        // fill in intermediate entries
         for (let i = 1; i < arr.length; i += 1) {
             const prev = arr[i - 1];
             const mid = interpolate(prev, arr[i], Math.sqrt(variance));

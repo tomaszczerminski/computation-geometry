@@ -1,16 +1,10 @@
-export default class BBox {
+export default class Boundaries {
+
   constructor() {
     this.minX = Number.POSITIVE_INFINITY;
     this.minY = Number.POSITIVE_INFINITY;
     this.maxX = Number.NEGATIVE_INFINITY;
     this.maxY = Number.NEGATIVE_INFINITY;
-  }
-
-  growBy(offset) {
-    this.minX -= offset;
-    this.minY -= offset;
-    this.maxX += offset;
-    this.maxY += offset;
   }
 
   get left() {
@@ -25,10 +19,6 @@ export default class BBox {
     return this.maxX;
   }
 
-  get bottom() {
-    return this.maxY;
-  }
-
   get width() {
     return this.maxX - this.minX;
   }
@@ -37,20 +27,11 @@ export default class BBox {
     return this.maxY - this.minY;
   }
 
-  get cx() {
-    return (this.minX + this.maxX)/2;
-  }
-
-  get cy() {
-    return (this.minY + this.maxY)/2;
-  }
-
   addPoint(xIn, yIn) {
     if (xIn === undefined) throw new Error('Point is not defined');
     let x = xIn;
     let y = yIn;
     if (y === undefined) {
-      // xIn is a point object
       x = xIn.x;
       y = xIn.y;
     }
@@ -59,14 +40,6 @@ export default class BBox {
     if (x > this.maxX) this.maxX = x;
     if (y < this.minY) this.minY = y;
     if (y > this.maxY) this.maxY = y;
-  }
-
-  addRect(rect) {
-    if (!rect) throw new Error('rect is not defined');
-    this.addPoint(rect.left, rect.top);
-    this.addPoint(rect.right, rect.top);
-    this.addPoint(rect.left, rect.bottom);
-    this.addPoint(rect.right, rect.bottom);
   }
 
   merge(otherBBox) {

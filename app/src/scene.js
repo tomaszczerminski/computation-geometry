@@ -1,10 +1,10 @@
-import BBox from './BBox';
-import appStatus from './appStatus';
-import bus from "@/bus";
+import Boundaries from './boundaries';
+import appStatus from './app-state';
+import eventBus from "@/event-bus";
 
-let isect = require('../../index.js');
+let intersections = require('../../index.js');
 let wgl = require('w-gl');
-let algorithmName;
+const algorithmName = "sweep"
 let iSector, nodeCollection;
 const status = {};
 let totalElapsed = 0;
@@ -15,7 +15,6 @@ let nextFrame;
 
 export function createScene(options) {
     lines = options.lines;
-    algorithmName = options.algorithm;
     scene = prepare();
     draw();
     return {
@@ -35,7 +34,7 @@ export function dispose() {
 export function prepare() {
     const scene = wgl.scene(canvas);
     scene.setClearColor(0x0C / 255, 0x18 / 255, 0x34 / 255, 1);
-    const bounds = new BBox();
+    const bounds = new Boundaries();
     lines.forEach(line => {
         bounds.addPoint(line.from);
         bounds.addPoint(line.to);
@@ -48,7 +47,7 @@ export function prepare() {
             left, top, right: left + bounds.width / pixelRatio, bottom: top + bounds.height / pixelRatio
         });
     } catch (e) {
-        console.log(e)
+        // PASS
     }
     return scene;
 }
@@ -79,7 +78,7 @@ function formatWithDecimalSeparator(x) {
 }
 
 export function start() {
-    bus.fire('start-app')
+    eventBus.fire('start-app')
     appStatus.error = null;
     run();
     appStatus.showLoading = false;
@@ -88,13 +87,11 @@ export function start() {
 
 function run() {
     const start = performance.now();
-    // only sweep line supports async running at the moment
-    iSector = isect[algorithmName](lines, {onError});
+    iSector = intersections[algorithmName](lines, {onError});
     const end = performance.now();
     totalElapsed += (end - start);
     updateSearchMetrics(totalElapsed);
     nextFrame = requestAnimationFrame(frame);
-    // for console driven debugging
     window.next = () => {
         const hasMore = iSector.step();
         if (iSector.sweepStatus) {
@@ -122,13 +119,12 @@ function frame() {
     totalElapsed += end - start;
     updateSearchMetrics(totalElapsed);
     drawSweepStatus(iSector.sweepStatus, appStatus.mode);
-    iSector.sweepStatus.printStatus();
     drawIntersections(iSector.results, appStatus.mode)
     if (hasMore) {
         nextFrame = requestAnimationFrame(frame);
     } else {
         nextFrame = null;
-        bus.fire('chunks-sent', iSector.results);
+        eventBus.fire('chunks-sent', iSector.results);
     }
 }
 
@@ -147,7 +143,6 @@ function drawSweepStatus(sweepStatus, mode) {
         ui.setColor({r: 1, g: 0, b: 0});
         scene.appendChild(status.point);
     }
-    // status line
     if (status.line) {
         scene.removeChild(status.line);
     }
@@ -159,7 +154,6 @@ function drawSweepStatus(sweepStatus, mode) {
         }, to: {x: 1000, y: pt.y}
     });
     scene.appendChild(status.line);
-    // lines
     if (status.segments) {
         scene.removeChild(status.segments);
     }

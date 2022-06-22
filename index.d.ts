@@ -8,12 +8,12 @@ export type Segment = {
   to: Point
 }
 
-export type ISectResults = {
+export type Results = {
   run: Function,
   step: Function
 }
 
-export type ISectOptions = {
+export type Options = {
 }
 
-export default function isect(segments: Array<Segment>, options: ISectOptions) : ISectResults;
+export default function intersections(segments: Array<Segment>, options: Options) : Results;

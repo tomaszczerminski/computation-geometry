@@ -1,7 +1,5 @@
-import sweep from './src/algorithms/sweep';
-import brute from './src/algorithms/brute';
-import bush from './src/algorithms/bush';
+import sweep from './src/sweep';
 
 export {
-  sweep, brute, bush
+  sweep
 }

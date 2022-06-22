@@ -8,9 +8,8 @@ const version = process.env.VERSION || require('./package.json').version
 
 const banner =
   '/*!\n' +
-  ' * isect v' + version + '\n' +
-  ' * (c) 2018 Andrei Kashcha.\n' +
-  ' * Released under the MIT License.\n' +
+  ' * Projekt WSB - Geometria obliczeniowa\n' +
+  ' - Tomasz Czermiński,\n- Grażyna Górka,\n- Tomasz Juszkiewicz' +
   ' */'
 export default {
   input: 'index.js',

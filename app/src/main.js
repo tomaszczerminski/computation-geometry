@@ -4,9 +4,7 @@ import {createScene, dispose, prepare, start} from './scene';
 
 import queryState from 'query-state';
 
-import bus from './bus';
-
-let whitelistedAlgorithms = new Set(['brute', 'bush', 'sweep']);
+import eventBus from './event-bus';
 
 let qs = queryState({
     isAsync: true,
@@ -19,16 +17,16 @@ let qs = queryState({
 let handle = null
 
 qs.onChange(updateScene);
-bus.on('start', () => {
+eventBus.on('start', () => {
     handle = setTimeout(start, 80);
 })
-bus.on('change-qs', (newState) => {
+eventBus.on('change-qs', (newState) => {
     let link = document.getElementById("download-report");
     link.style.visibility = 'hidden';
     qs.set(newState);
     updateScene(newState);
 });
-bus.on('clear-scene', () => {
+eventBus.on('clear-scene', () => {
     let link = document.getElementById("download-report");
     link.style.visibility = 'hidden';
     let results = document.getElementById('results');
@@ -36,14 +34,14 @@ bus.on('clear-scene', () => {
     onClear();
 })
 
-bus.on('start-app', () => {
+eventBus.on('start-app', () => {
     let link = document.getElementById("download-report");
     link.style.visibility = 'hidden';
     let results = document.getElementById('results');
     results.style.visibility = 'visible';
 });
 
-bus.on('prepare-report', intersections => {
+eventBus.on('prepare-report', intersections => {
     let csv = "";
     intersections.forEach(function (intersection) {
         let point = intersection.point;
@@ -61,8 +59,8 @@ bus.on('prepare-report', intersections => {
     link.style.visibility = 'visible';
 });
 
-bus.on('chunks-sent', chunks => {
-    bus.fire('prepare-report', chunks);
+eventBus.on('chunks-sent', chunks => {
+    eventBus.fire('prepare-report', chunks);
 });
 
 let sceneOptions = getSceneOptions(qs.get());
@@ -89,7 +87,7 @@ function onClear() {
         handle = 0;
     }
     prepare();
-    bus.fire('change-qs', {
+    eventBus.fire('change-qs', {
         dirty: false,
         mode: null,
         x1: null,
@@ -117,7 +115,6 @@ function getSceneOptions(state) {
         lines,
         isAsync,
         stepsPerFrame,
-        algorithm: whitelistedAlgorithms.has(state.algorithm) ? state.algorithm : 'bush'
     }
 }
 

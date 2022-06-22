@@ -1,5 +1,5 @@
 import * as gen from './generators';
-import appStatus from "@/appStatus";
+import appStatus from "@/app-state";
 
 const createRandom = require('ngraph.random');
 const prng = createRandom(42);
@@ -7,28 +7,24 @@ const prng = createRandom(42);
 const params = [
     {
         name: 'random',
-        algorithm: ['brute', 'bush'],
         args: [
-            {min: 100, max: 500},  // number of lines
-            {min: 100, max: 200},  // visible area
+            {min: 100, max: 500},
+            {min: 100, max: 200},
         ]
     },
     {
         name: 'complete',
-        algorithm: ['brute', 'bush'],
         args: [
-            {min: 10, max: 40},  // number of nodes
+            {min: 10, max: 40},
             function p1(qs) {
                 return Math.round((10 + prng.gaussian()) * qs.p0);
-                // {min: 400, max: 600},  // visible area
             }
         ]
     },
     {
         name: 'cube',
-        algorithm: ['brute', 'bush'],
         args: [
-            {min: 100, max: 150},  // number of rects
+            {min: 100, max: 150},
             function p2() {
                 return Math.round((10 + prng.gaussian()));
             }
@@ -36,9 +32,8 @@ const params = [
     },
     {
         name: 'drunkgrid',
-        algorithm: ['brute', 'bush'],
         args: [
-            {min: 10, max: 150},  // Row x Col
+            {min: 10, max: 150},
             function p2(qs) {
                 let v = Math.round(Math.random() * 10) + 1;
                 if (v === 0) return 0;
@@ -49,36 +44,29 @@ const params = [
     },
     {
         name: 'sparse',
-        algorithm: ['bush', 'bush', 'sweep'],
         args: [
-            {min: 50, max: 300},  // Count
+            {min: 50, max: 300},
         ]
     },
     {
         name: 'triangle',
-        algorithm(qs) {
-            // sparse is better with sweep
-            return (qs.p1 > 7) ? 'brute' : 'bush'
-        },
         args: [
-            {min: 10, max: 30},  // Count
-            {min: 1, max: 20},  // Count
+            {min: 10, max: 30},
+            {min: 1, max: 20},
         ]
     },
     {
         name: 'splash',
-        algorithm: ['sweep', 'bush'],
         args: [
-            {min: 10, max: 50},  // Number of lines
-            {min: 40, max: 70},  // squared variance
+            {min: 10, max: 50},
+            {min: 40, max: 70},
         ]
     },
     {
         name: 'island',
-        algorithm: ['sweep', 'bush'],
         args: [
-            {min: 3, max: 10},  // Number of control points on circle
-            {min: 6, max: 11},  // Number of subdivisions
+            {min: 3, max: 10},
+            {min: 6, max: 11},
         ]
     }
 ];
@@ -100,9 +88,7 @@ export default function generateRandomExample() {
     });
     const p0 = getNumber(qs.p0, 50);
     const p1 = getNumber(qs.p1, 4);
-    console.log(generator.name)
-    const segments = gen[generator.name](p0, p1);
-    appStatus.segments = segments;
+    appStatus.segments = gen[generator.name](p0, p1);
     qs.algorithm = 'sweep';
     qs.stepsPerFrame = 1;
     return qs;

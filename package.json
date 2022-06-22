@@ -6,9 +6,9 @@
   "types": "./index.d.ts",
   "private": true,
   "scripts": {
-    "start": "cd src/app && vue-cli-service serve",
-    "build": "cd src/app && vue-cli-service build",
-    "lint": "cd src/app && vue-cli-service lint"
+    "start": "cd app && vue-cli-service serve",
+    "build": "cd app && vue-cli-service build",
+    "lint": "cd app && vue-cli-service lint"
   },
   "dependencies": {
     "flatbush": "^4.0.0",

@@ -24,12 +24,11 @@ export default function eventQueue(byY) {
   }
 
   function insert(event) {
-    // debugger;
     q.add(event.point, event);
   }
 
   function pop() {
-    var node = q.pop();
+    const node = q.pop();
     return node && node.data;
   }
 }
